@@ -1,0 +1,52 @@
+﻿
+@{
+    Layout = "~/Views/Shared/Login_layout.cshtml";
+}
+
+@model UserViewModel
+ <section>
+  <div class="container-fluid h-custom">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-9 col-lg-6 col-xl-5">
+        <img src="/images/Payroll.gif"  class="img-fluid"/>        
+      </div>
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+        <form id="form1" method="post">
+          <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+            <p class="lead fw-normal mb-3 me-3 fw-bold mt-1" style="font-size:x-large">Login Here!</p>           
+          </div>       
+
+          <!-- Username input -->
+          <div class="form-outline mb-3">
+                        @Html.Label("txtUsername", "Username", new {  @class = "form-label mb-0 fs-6 " })
+                        @Html.TextBoxFor(m => m.usermaster.userName, new { @id = "txtUsername", @class = "form-control",required = "required",style="border-color:blue;" })
+         </div>
+
+          <!-- Password input -->
+          <div class="form-outline mb-3">
+                        @Html.Label("Password", "Password", new {  @class = "form-label mb-0 fs-6 " })
+                        @Html.TextBoxFor(m => m.usermaster.userPassword, new { @id = "txtPassword", @class = "form-control",required = "required",type="password",style="border-color:blue;" })
+          </div>
+            <center>
+          <div class="form-outline mb-3 text-center text-lg-start mt-1 pt-2">
+          <button type="submit" class="btn btn-large btn-dark w-100">Login</button>
+          </div>
+            </center>                 
+        </form>
+                
+      </div>
+    </div>
+  </div>
+</section>
+@if (ViewData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: '@ViewBag.message',
+        });
+    </script>
+}
+<br />
+<br />

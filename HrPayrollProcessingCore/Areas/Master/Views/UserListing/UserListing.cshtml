@@ -1,0 +1,81 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+        </div>
+        <div class="justify-content-end">
+            <a href="~/Master/UserMaster/UserMaster" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add</a>
+        </div>
+    </div>
+
+    <center><h3>USER LISTING</h3></center><hr />
+</div>
+<div style="width:100%; margin:0 auto;">
+    <table id="example" class="table table-striped table-bordered table-condensed table-hover dt-responsive" width="100%" cellspacing="0">
+        <thead class="table-primary">
+            <tr>
+                <th>USER ID</th>
+                <th>USER ID</th>
+                <th>USERNAME</th>
+                <th>USER PASSWORD</th>
+                <th>USER ACTIVE Y/N</th>
+                <th>EDIT</th>
+                <th>DELETE</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        var jqu = jQuery.noConflict();
+        $("#example").DataTable({
+            "processing": true, // for show progress bar
+            "serverSide": false, // for process server side
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": "http://192.168.1.30:89/Api/UserApi/UserListing",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columnDefs": [{
+                "targets": [0],
+                "visible": false,
+                "searchable": true
+            }],
+            "columns": [
+                { "data": "USER_ID", "name": "USER_ID" },
+                { "data": "USER_ID", "name": "USER_ID" },
+                { "data": "USER_NAME", "name": "USER_NAME" },
+                {
+                    "data": "USER_PASSWORD",
+                    "name": "USER_PASSWORD",
+                    "render": function (data, type, full, meta) {
+                        return '********';
+                    }
+                },
+                { "data": "USER_ACTIVE_YN", "name": "USER_ACTIVE_YN" },
+                {
+                    "render": function (data, type, full, meta) { return '<a href="/Master/UserMaster/UserMaster/' + full.USER_ID + '"><i class="fa fa-edit" style="color:green;" title="Edit"></i></a>'; }
+                },
+                {
+                    "render": function (data, type, full, meta) { return '<a onclick=return(DeleteData()); href="/Master/UserMaster/DeleteUser/' + full.USER_ID + '"><i class="material-icons" style="color: red;" data-toggle="tooltip" title="Delete">&#xE872;</i></a>'; }
+                }
+            ]
+        });
+    });
+    function DeleteData() {
+        if (confirm("Are you sure you want to delete?")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+
+</script>

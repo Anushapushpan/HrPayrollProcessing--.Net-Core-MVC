@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model AttendenceViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="justify-content-lg-start"><button id="btnBack" onclick="goBack()" class="btn btn-dark"><i class="fa fa-chevron-circle-left">&nbsp</i>Back</button></div>
+    <center><h3>EDIT ATTENDENCE</h3></center><hr />
+    <form asp-controller="EditAttendence" asp-action="SaveAttendence" method="post">
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("txtEmpNo", "EMPLOYEE NO: ", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.TextBoxFor(m => m.Attendence.attEmpNo, new { @id = "txtEmpNo", @class = "form-control form-control-sm",@readonly="true",style="border-color:blue; color:blue" })
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtAbsentDays", "ABSENT DAYS:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.Attendence.attDaysAbsent, new { @id = "txtAbsentDays",@type="number",@required="true",@min=0, @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtPresentDays", "PRESENT DAYS:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.Attendence.attDaysPresent, new { @id = "txtPresentDays",@type="number",@required="true",@readonly="true", @class = "form-control form-control-sm",style="border-color:blue; color:blue"})
+            </div>
+        </div>
+        @Html.HiddenFor(m=>m.Attendence.attYyyyMm)
+        @Html.HiddenFor(m=>m.EditAttPage)
+        @Html.HiddenFor(m=>m.Attendence.attDaysPresent,new {@id="txtHiddenPresentdays"})
+        <center>
+        <div class="mt-4">
+                @if (Model.EditAttPage == "IN")
+                {
+                    <button type="submit" class="btn btn-dark">Save</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }
+        </div>
+        </center>
+      </form>
+    </div>
+<script>
+    $(document).ready(function () {
+        var totalDays = parseInt($('#txtPresentDays').val()) || 0;
+        var hiddenTotalDays = parseInt($('#txtHiddenPresentdays').val()) || 0;
+        var temp = parseInt($('#txtPresentDays').val()) || 0;
+        $('#txtAbsentDays').on('input', function () {
+            updatePresentDays(totalDays);
+        });
+        function updatePresentDays(totalDays) {
+            var absentDays = parseInt($('#txtAbsentDays').val()) || 0;
+            // Check if presentDays is already zero
+            if (totalDays === 0) {
+                $('#txtAbsentDays').val(0);
+            } else {
+                // Calculate the present days
+                var presentDays = hiddenTotalDays - absentDays;
+                // Ensure presentDays is not less than zero
+                presentDays = Math.max(presentDays, 0);
+                // Update the txtPresentDays textbox
+                $('#txtPresentDays').val(presentDays);
+                // Check if presentDays is zero, prevent further increase in absentDays
+                if (presentDays === 0) {
+                    $('#txtAbsentDays').val(temp);
+                }
+            }
+        }
+    });
+</script>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+

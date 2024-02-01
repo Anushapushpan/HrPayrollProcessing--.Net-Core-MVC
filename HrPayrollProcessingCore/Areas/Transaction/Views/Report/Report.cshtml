@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model AttendenceViewModel;
+
+
+<div class="container">
+    <div class="justify-content-lg-start"><button id="btnBack" onclick="goBack()" class="btn btn-dark"><i class="fa fa-chevron-circle-left">&nbsp</i>Back</button></div>
+    <center><h3>REPORT</h3></center><hr />
+    <center>
+       
+        <div class="d-inline-flex">
+            <div class="d-inline-flex">
+                @Html.Label("Month", "Month: ", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.DropDownList("Month", TempData["Months"] as List<SelectListItem>, new { @class = "form-control form-control-sm form-select", style = "border-color:blue; width:150px;" })
+
+                &nbsp;&nbsp;
+
+                @Html.Label("Year", "Year: ", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.DropDownList("Year", TempData["Years"] as List<SelectListItem> ,new { @class = "form-control form-control-sm form-select",style = "border-color:blue;width:150px;" })
+                &nbsp;&nbsp;
+                @Html.Label("ThirdDropdown", "Employee No: ", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.DropDownList("ThirdDropdown", new List<SelectListItem>(), new { @class = "form-control form-control-sm form-select", style = "border-color:blue; width:150px;" })
+               
+            </div>
+        </div>
+        
+        <br />
+        <button class="btn btn-dark mt-4" id="btnSubmit">REPORT</button>
+        
+    </center>
+</div>
+
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    //DISPLAY DROPDOWN OF EMPLOYEE NO
+    $(document).ready(function () {      
+        $("#Month, #Year").on("change", function () {            
+            fetchDataForThirdDropdown();
+        });      
+        fetchDataForThirdDropdown();
+    });
+
+    function fetchDataForThirdDropdown() {
+        var selectedMonth = $("#Month").val();
+        var selectedYear = $("#Year").val();
+
+        $.ajax({
+            url: "/Transaction/Report/getDropdowns",
+            type: "GET",
+            data: { month: selectedMonth, year: selectedYear },
+            success: function (data) {              
+                updateThirdDropdown(data);
+                console.log(data);
+            },
+            error: function () {              
+            }
+        });
+    }
+
+    function updateThirdDropdown(data) {
+        var options = data.map(function (item) {
+            return '<option value="' + item.empNo + '">' + item.empNo + '</option>';
+        });       
+        $("#ThirdDropdown").html(options.join(""));
+    }
+
+    //----------------------------------------------
+    //Download Report
+    $(document).ready(function () {
+        var jqu = jQuery.noConflict();
+        $("#btnSubmit").click(function () {
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+            var empno = $("#ThirdDropdown").val();          
+            var value = year + month;          
+            window.location.href = "http://192.168.1.30:73/Transaction/CrystalReport?emp=" + empno + "&&yyyymm=" + value;
+        });
+    });
+    //-----------------------------------------
+</script>

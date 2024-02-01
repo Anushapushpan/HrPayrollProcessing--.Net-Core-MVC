@@ -1,0 +1,146 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model ErrorMasterViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+            <a href="~/Master/ErrorListing/ErrorListing" class="btn btn-dark"><i class="fa fa-chevron-circle-left"></i>&nbsp;Back</a>
+        </div>
+        <div class="justify-content-end">
+            <a href="~/Master/ErrorMaster/ErrorMaster" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add</a>
+        </div>
+    </div>
+    <center><h3>ERROR CODE MASTER</h3></center><hr />
+    <span id="alert" class="text-danger"></span>
+    <form asp-controller="ErrorMaster" asp-action="SaveErrorCode" method="post" id="form">
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @if (Model.CurrentPage == "IN")
+                {
+                    @Html.Label("txtErrCode", "ERROR CODE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                    <font color="red">*</font>
+                    @Html.TextBoxFor(m => m.ErrorCodeMasterEntity.errCode, new { @id = "txterrCode",@maxlength="12", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                    <span id="codeerr" class="text-danger"></span>
+                }
+                else
+                {
+                    @Html.Label("txtErrCode", "ERROR CODE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                    <font color="red">*</font>
+                    @Html.TextBoxFor(m => m.ErrorCodeMasterEntity.errCode, new { @id = "txterrCode",@maxlength="12", @class = "form-control form-control-sm",@readonly="true",style="border-color:blue; color:blue" })
+                }
+
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtErrType", "ERROR TYPE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.ErrorCodeMasterEntity.errType, new { @id = "txtErrType",@maxlength="12", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="typeerr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtErrDesc", "ERROR DESCRIPTION:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.ErrorCodeMasterEntity.errDesc, new { @id = "txtErrDesc",@maxlength="240", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="descerr" class="text-danger"></span>
+            </div>
+        </div><br />      
+        <center>
+            <div class="mt-2">
+                @if (Model.CurrentPage == "IN")
+                {
+                    <button type="submit" class="btn btn-dark" id="btnSubmit">Save</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }
+                <a href="~/Master/ErrorMaster/ErrorMaster" class="btn btn-secondary">Cancel</a>
+            </div>
+        </center>
+        @Html.HiddenFor(m=>m.CurrentPage)
+    </form>
+</div>
+
+
+@if (TempData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["message"]',
+        });
+    </script>
+}
+<br />
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    //Form Validations
+    $(document).ready(function () {
+        $('#txterrCode').on('keyup', function () {
+            checkCodeUniqueness();
+        });
+    });
+    function checkCodeUniqueness() {
+        var errCode = $('#txterrCode').val();
+        $.ajax({
+            type: 'GET',
+            url: '/Master/ErrorMaster/CheckUnique',
+            data: { errCode: errCode },
+            dataType: 'json',
+            success: function (response) {
+                if (response.res == 1) {               
+                    $("#alert").text('error Code must be unique!');
+                    $("#txterrCode").css('border-color', 'red');
+                    $("#btnSubmit").prop("disabled", true);
+                }
+                else {
+                    $("#txterrCode").css('border-color', 'green');
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#alert").text(' ');
+                }
+            },
+            error: function () {         
+                console.error('Error checking code uniqueness.');
+            }
+        });
+    }
+    document.getElementById('form').addEventListener('submit', function (event) {
+        var code = document.getElementById('txterrCode').value.trim();
+        var type = document.getElementById('txtErrType').value.trim();
+        var desc = document.getElementById('txtErrDesc').value.trim();
+        if (code === '') {
+            $("#codeerr").text('Required Field');
+            $("#txterrCode").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#txterrCode").css('border-color', 'blue');
+            $("#codeerr").text('');
+        }
+
+        if (type === '') {
+            $("#txtErrType").css('border-color', 'red');
+            $("#typeerr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtErrType").css('border-color', 'blue');
+            $("#typeerr").text('');
+        }
+
+        if (desc === '') {
+            $("#txtErrDesc").css('border-color', 'red');
+            $("#descerr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtErrDesc").css('border-color', 'blue');
+            $("#descerr").text('');
+        }
+
+    });
+</script>

@@ -1,0 +1,219 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model PayrollViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+        </div>
+        <div class="justify-content-end">
+            <!-- Your second button goes here -->
+            <a class="btn btn-dark" href="~/Transaction/Report/Report">&nbsp</i>Report</a>
+        </div>
+    </div>
+    <center><h3>PAYROLL</h3></center><hr />
+    <center>
+        <div class="d-inline-flex">
+            <div class="d-inline-flex">
+                @Html.Label("Month", "Month: ", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.DropDownList("Month", TempData["Months"] as List<SelectListItem>, new { @class = "form-control form-control-sm form-select", style = "border-color:blue; width:150px;" })
+
+                &nbsp;&nbsp;
+
+                @Html.Label("Year", "Year: ", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.DropDownList("Year", TempData["Years"] as List<SelectListItem> ,new { @class = "form-control form-control-sm form-select",style = "border-color:blue;width:150px;" })
+            </div>
+        </div>
+        <br />
+        <button class="btn btn-dark mt-4" id="btnProcessPayroll">Process Payroll</button>
+    </center>
+</div>
+
+<div style="width:100%; margin:0 auto;">
+    <table id="example" class="table table-striped table-bordered table-condensed table-hover dt-responsive flex-lg-wrap mt-5" width="100%" cellspacing="0">
+        <thead class="table-primary">
+            <tr>
+
+                <th>yyyymm</th>
+                <th>yyyymm</th>
+                <th>Emp No</th>
+                <th>Designation</th>
+                <th>Present Days</th>
+                <th>Absent Days</th>
+                <th>Basic</th>
+                <th>HRA</th>
+                <th>CONV</th>
+                <th>DA</th>
+                <th>TDS</th>
+                <th>ESI</th>
+                <th>Total earnings</th>
+                <th>Total Deduction</th>
+                <th>Net Payable</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var jqu = jQuery.noConflict();
+        var dataTable;
+
+            //Process Payroll
+        $("#btnProcessPayroll").click(function () {
+                var month = $("#Month").val();
+                var year = $("#Year").val();
+                $.ajax({
+                    url: "/Transaction/Payroll/ProcessPayroll",
+                    type: "GET",
+                    data: { month: month, year: year },
+                    success: function (result) {
+                        if (result.res == 0) {
+                            swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Salary Processed Successfully',
+                            });
+                            if (dataTable) {
+                                dataTable.destroy();
+                            }
+                            if (month && year) {
+                                initializeDataTable(month, year);
+                            }
+                        } else if (result.res == 2) {                   
+                            swal.fire({
+                                icon: 'info',
+                                title: 'Info',
+                                text: 'Salary Already Processed in this Month',
+                            });
+                        }
+                        else if (result.res == 3) {
+                            swal.fire({
+                                icon: 'warning',
+                                title: 'Warning',
+                                text: 'Salary Cannot Process Before Processing Attendence of this Month!!!',
+                            });
+                        }
+                        else {
+                            swal.fire({
+                                icon: 'warning',
+                                title: 'Warning',
+                                text: 'Previous month Salary is not Processed!',
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        // Handle the error
+                        console.error(error);
+                    }
+                });
+            });
+
+        // Function to initialize DataTable
+        function initializeDataTable(month, year) {
+            dataTable = $("#example").DataTable({
+                "processing": true,
+                "serverSide": false,
+                "filter": true,
+                "orderMulti": false,
+                "ajax": {
+                    "url": "http://192.168.1.30:89/Api/PayrollApi/PayrollListing",
+                    "type": "GET",
+                    "data": { month: month, year: year },
+                    "datatype": "json"
+                },
+                "columnDefs": [{
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": true
+                }],
+                "columns": [
+                    { "data": "PR_YYYMM", "name": "PR_YYYMM" },
+                    { "data": "PR_YYYMM", "name": "PR_YYYMM" },
+                    { "data": "PR_EMP_NO", "name": "PR_EMP_NO" },
+                    { "data": "PR_DESIGNATION", "name": "PR_DESIGNATION" },
+                    { "data": "PR_DAYS_PRESENT", "name": "PR_DAYS_PRESENT" },
+                    { "data": "PR_DAYS_ABSENT", "name": "PR_DAYS_ABSENT" },
+                    { "data": "PR_BASIC", "name": "PR_BASIC",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_HRA", "name": "PR_HRA",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_CONV", "name": "PR_CONV",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_DA", "name": "PR_DA",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_TDS", "name": "PR_TDS",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_ESI", "name": "PR_ESI",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_TOT_EARNINGS", "name": "PR_TOT_EARNINGS",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_TOT_DEDU", "name": "PR_TOT_DEDU",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                    { "data": "PR_NET_PAYABLE", "name": "PR_NET_PAYABLE",
+                        "render": function (data, type, row) {
+                            return formatSalary(data);
+                        }
+                    },
+                ]
+            });
+        }
+
+
+        function formatSalary(salary) {
+            var parts = String(salary).split('.');
+            var mainNumber = parts[0];
+            var decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+            var formattedSalary = mainNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return formattedSalary + decimalPart;
+        }
+        // Event handler for dropdown change
+        $('#Month, #Year').change(function () {           
+            var selectedMonth = $('#Month').val();
+            var selectedYear = $('#Year').val();
+            if (dataTable) {
+                dataTable.destroy();
+            }
+            if (selectedMonth && selectedYear) {
+                initializeDataTable(selectedMonth, selectedYear);
+            }
+        });
+
+        // Initial call to populate the grid based on the default selected values
+        var initialMonth = $('#Month').val();
+        var initialYear = $('#Year').val();
+        initializeDataTable(initialMonth, initialYear);
+    });
+</script>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>

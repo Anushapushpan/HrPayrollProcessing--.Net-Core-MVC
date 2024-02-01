@@ -1,0 +1,112 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model EmployeeListViewModel;
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+        </div>
+        <div class="justify-content-end">
+            <!-- Your second button goes here -->
+            <a href="~/Transaction/Employee/Employee" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add Employee</a>
+        </div>
+    </div>
+
+    <center><h3>EMPLOYEE LIST</h3></center><hr />
+    <div style="width:100%; margin:0 auto;">
+        <table id="example" class="table table-striped table-bordered table-condensed table-hover dt-responsive" width="100%" cellspacing="0">
+            <thead class="table-primary">
+                <tr>
+                    <th>Employee No</th>
+                    <th>Employee No</th>
+                    <th>Name</th>
+                    <th>Dob</th>
+                    <th>Join Date</th>
+                    <th>Salary</th>
+                    <th>Department</th>
+                    <th>Manager No</th>
+                    <th>Status</th>
+                    <th>Active</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@if (ViewData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: '@ViewBag.message',
+        });
+    </script>
+}
+<script>
+    $(document).ready(function () {
+        var jqu = jQuery.noConflict();
+        $("#example").DataTable({
+            "processing": true, // for show progress bar
+            "serverSide": false, // for process server side
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": "http://192.168.1.30:89/Api/EmployeeListApi/EmployeeList",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columnDefs": [{
+                "targets": [0],
+                "visible": false,
+                "searchable": true
+            }],
+            "columns": [
+                { "data": "EMP_NO", "name": "EMP_NO" },
+                { "data": "EMP_NO", "name": "EMP_NO" },
+                { "data": "EMP_NAME", "name": "EMP_NAME" },
+
+                { "data": "EMP_DOB", "name": "EMP_DOB" },
+                { "data": "EMP_JOIN_DATE", "name": "EMP_JOIN_DATE" },
+                { "data": "EMP_SALARY", "name": "EMP_SALARY",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "DEPT_NAME", "name": "DEPT_NAME" },
+                { "data": "EMP_MGRNO", "name": "EMP_MGRNO" },
+                { "data": "STATUS", "name": "STATUS" },
+                { "data": "EMP_ACTIVE_YN", "name": "EMP_ACTIVE_YN" },
+                {
+                    "render": function (data, type, full, meta) { return '<a href="/Transaction/Employee/Employee/' + full.EMP_NO + '"><i class="fa fa-edit" style="color:green;" title="Edit"></i></a>'; }
+                },
+                {
+                    "render": function (data, type, full, meta) { return '<a onclick=return(DeleteData()); href="/Transaction/EmployeeList/DeleteEmployee/' + full.EMP_NO + '"><i class="material-icons" style="color: red;" data-toggle="tooltip" title="Delete">&#xE872;</i></a>'; }
+                },
+            ]
+        });
+    });
+
+    function DeleteData() {
+        if (confirm("Are you sure you want to delete?")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+   
+    function formatSalary(salary) {
+        var parts = String(salary).split('.');
+        var mainNumber = parts[0];
+        var decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+        var formattedSalary = mainNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return formattedSalary + decimalPart;
+    }
+</script>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>

@@ -1,0 +1,105 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore
+@model HistoryViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    
+    <center><h3>ALLOWANCE HISTORY</h3></center><hr />
+    <div style="width:100%; margin:0 auto;">
+        <table id="tblHistory" class="table table-striped table-bordered table-condensed table-hover dt-responsive flex-lg-wrap mt-5" width="100%" cellspacing="0">
+            <thead class="table-primary">
+                <tr>
+                    <th>Emp No</th>
+                    <th>Emp No</th>
+                    <th>Designation</th>
+                    <th>Grade</th>
+                    <th>Basic</th>
+                    <th>HRA</th>
+                    <th>CONV</th>
+                    <th>DA</th>
+                    <th>TDS</th>
+                    <th>ESI</th>
+                    <th>Action Type</th>
+                    <th>Action SRL</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var jqu = jQuery.noConflict();
+        $("#tblHistory").DataTable({
+            "processing": true, 
+            "serverSide": false,
+            "filter": true, 
+            "orderMulti": false, 
+            "ajax": {
+                "url": "http://192.168.1.30:89/api/AllowanceApi/AllowanceHistory",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columnDefs": [{
+                "targets": [0],
+                "visible": false,
+                "searchable": true
+            }],
+            "columns": [
+                { "data": "EH_EMP_NO", "name": "EH_EMP_NO" },
+                { "data": "EH_EMP_NO", "name": "EH_EMP_NO" },
+                { "data": "EH_DESIGNATION", "name": "EH_DESIGNATION" },
+                { "data": "EH_GRADE", "name": "EH_GRADE" },
+                {
+                    "data": "EH_BASIC",
+                    "name": "EH_BASIC",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_HRA", "name": "EH_HRA" ,
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_CONV", "name": "EH_CONV",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_DA", "name": "EH_DA",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_TDS", "name": "EH_TDS",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_ESI", "name": "EH_ESI",
+                    "render": function (data, type, row) {
+                        return formatSalary(data);
+                    }
+                },
+                { "data": "EH_ACTION_TYPES", "name": "EH_ACTION_TYPES" },
+                { "data": "EH_ACTION_SRL", "name": "EH_ACTION_SRL" },
+            ]
+        });
+    });
+ 
+    function formatSalary(salary) {
+        var parts = String(salary).split('.');
+        var mainNumber = parts[0];
+        var decimalPart = parts.length > 1 ? '.' + parts[1] : '';      
+        var formattedSalary = mainNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');     
+        return formattedSalary + decimalPart;
+    }
+    function goBack() {
+        window.history.back();
+    }
+</script>

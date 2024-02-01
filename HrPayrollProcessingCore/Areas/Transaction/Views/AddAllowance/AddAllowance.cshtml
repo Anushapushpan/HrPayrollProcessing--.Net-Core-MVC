@@ -1,0 +1,189 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model AddAllowanceViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="justify-content-lg-start"><button id="btnBack" onclick="goBack()" class="btn btn-dark"><i class="fa fa-chevron-circle-left">&nbsp</i>Back</button></div>
+    <center><h3>ADD ALLOWANCE</h3></center><hr />
+    <form asp-controller="AddAllowance" asp-action="SaveAllowance" method="post" id="form">
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("txtEmpNo", "EMPLOYEE NO: ", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehEmpNo, new { @id = "txtEmpNo", @class = "form-control form-control-sm",required = "required",@readonly="true",style="border-color:blue; color:blue" })
+            </div>
+            <div class="col-md-4">               
+                    @Html.LabelFor(m => m.PrEmployeeHrEntity.ehDesignation, "DESIGNATION:", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.DropDownListFor(x => x.PrEmployeeHrEntity.ehDesignation, new SelectList(Model.DesignationList, "Code", "Text"), new {@class = "form-control form-control-sm form-select form-select-sm", @id = "ddlDesignation", style = "border-color:blue; color:blue" })
+                <span id="desigErr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.LabelFor(m => m.PrEmployeeHrEntity.ehGrade, "GRADE: ", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.DropDownListFor(m => m.PrEmployeeHrEntity.ehGrade, new SelectList(Model.GradeList, "Code", "Text"), new { @id="ddlGrade",@class = "form-control form-control-sm form-select form-select-sm",style="border-color:blue; color:blue" })
+                <span id="gradeErr" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("txtbasic", "BASIC:", new { @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehBasic, new { @id = "txtbasic", @maxlength = "12", @oninput = "formatSalary(this)", @class = "form-control form-control-sm", @min = "0", style = "border-color:blue; color:blue; text-align:right" })
+
+                <span id="basicErr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtHra", "HRA:", new {@class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehHra, new { @id = "txtHra",@maxlength="12", @oninput = "formatSalary(this)",  @class = "form-control form-control-sm",@min="0",style="border-color:blue; color:blue; text-align:right"})
+                <span id="HraErr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtConv", "CONV:", new {@class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font><br />
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehConv, new { @id = "txtConv",@maxlength="12",@oninput = "formatSalary(this)", @class = "form-control form-control-sm",@min="0",style="border-color:blue; color:blue; text-align:right" })
+                <span id="ConvErr" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("txtDa", "DA:", new {@class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehDa, new { @id = "txtDa",@maxlength="12", @oninput = "formatSalary(this)", @class = "form-control form-control-sm",@min="0",style="border-color:blue; color:blue; text-align:right" })
+                <span id="DaErr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txttds", "TDS:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font><br />
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehTds, new { @id = "txttds",@maxlength="12", @oninput = "formatSalary(this)",  @class = "form-control form-control-sm",@min="0",style="border-color:blue; color:blue; text-align:right" })
+                <span id="tdsErr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtEsi", "ESI:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font><br />
+                @Html.TextBoxFor(m => m.PrEmployeeHrEntity.ehEsi, new { @id = "txtEsi",@maxlength="12", @oninput = "formatSalary(this)", @class = "form-control form-control-sm",@min="0",style="border-color:blue; color:blue; text-align:right" })
+                <span id="esiErr" class="text-danger"></span>
+            </div>
+        </div><br />
+        @Html.HiddenFor(m=>m.CurrentAllowancePage)
+        <center>
+            <div class="mt-2">
+                @if (Model.CurrentAllowancePage == "IN")
+                {
+                    <button type="submit" class="btn btn-dark">Save</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }               
+            </div>
+        </center>
+    </form>
+    
+
+</div>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    //Format Salary
+    function formatSalary(input) {
+        // Remove non-numeric characters and parse the value
+        var inputValue = input.value;
+        var numericValue = parseFloat(inputValue.replace(/[^\d.]/g, ''));
+
+        if (!isNaN(numericValue)) {
+            var formattedSalary = numericValue.toLocaleString({
+                style: 'currency',
+                currency: 'USD',
+                maximumSignificantDigits: 3,
+                    minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+            input.value = formattedSalary;
+        } else {
+            input.value = '';
+        }
+    }
+
+
+
+    document.getElementById('form').addEventListener('submit', function (event) {        
+        var desig = document.getElementById('ddlDesignation').value.trim();
+        var grade = document.getElementById('ddlGrade').value.trim();
+        var basic = document.getElementById('txtbasic').value.trim();
+        var hra = document.getElementById('txtHra').value.trim();
+        var conv = document.getElementById('txtConv').value.trim();
+        var da = document.getElementById('txtDa').value.trim();
+        var tds = document.getElementById('txttds').value.trim();
+        var esi = document.getElementById('txtEsi').value.trim();
+        
+        if (desig === '') {
+            $("#desigErr").text('Required Field');
+            $("#ddlDesignation").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#ddlDesignation").css('border-color', 'blue');
+            $("#desigErr").text('');         
+        }
+
+        if (grade === '') {
+            $("#gradeErr").text('Required Field');
+            $("#ddlGrade").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#ddlGrade").css('border-color', 'blue');
+            $("#gradeErr").text('');        
+        }
+
+        if (basic === '') {
+            $("#basicErr").text('Required Field');
+            $("#txtbasic").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#txtbasic").css('border-color', 'blue');
+            $("#basicErr").text('');        
+        }
+
+        if (hra === '') {
+            $("#txtHra").css('border-color', 'red');
+            $("#HraErr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtHra").css('border-color', 'blue');
+            $("#HraErr").text('');       
+        }
+
+        if (conv === '') {
+            $("#txtConv").css('border-color', 'red');
+            $("#ConvErr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtConv").css('border-color', 'blue');
+            $("#ConvErr").text('');
+        }
+
+        if (da === '') {
+            $("#txtDa").css('border-color', 'red');
+            $("#DaErr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtDa").css('border-color', 'blue');
+            $("#DaErr").text('');
+        }
+
+        if (tds === '') {
+            $("#txttds").css('border-color', 'red');
+            $("#tdsErr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txttds").css('border-color', 'blue');
+            $("#tdsErr").text('');
+        }
+
+        if (esi === '') {
+            $("#txtEsi").css('border-color', 'red');
+            $("#esiErr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#txtEsi").css('border-color', 'blue');
+            $("#esiErr").text('');
+        }
+    });
+</script>

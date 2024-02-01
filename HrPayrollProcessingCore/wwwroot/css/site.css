@@ -1,0 +1,36 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+.navbar-nav .nav-item:hover .dropdown-menu {
+    display: block; /* Display dropdown on parent hover */
+}
+.dropdown-menu-end {
+    left: auto;
+    right: 0;
+}
+nav {
+    background: rgb(2,0,36);
+    background: linear-gradient(76deg, rgba(34,56,50,1) 0%, rgba(14,166,187,1) 30%, rgba(9,206,233,1) 100%, rgba(14,168,188,1) 100%, rgba(2,228,235,1) 100%, rgba(20,166,152,1) 100%, rgba(252,252,252,1) 100%, rgba(218,0,0,1) 100%, rgba(249,6,6,1) 100%);
+}
+input[disabled] {
+    pointer-events: none;
+}
+.btn {
+    border-radius:2px;
+}
+

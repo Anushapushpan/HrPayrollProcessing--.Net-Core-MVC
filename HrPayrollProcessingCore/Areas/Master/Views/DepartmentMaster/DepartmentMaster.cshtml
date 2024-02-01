@@ -1,0 +1,134 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model DepartmentMasterViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+            <a href="~/Master/DepartmentListing/DepartmentListing" class="btn btn-dark"><i class="fa fa-chevron-circle-left"></i>&nbsp;Back</a>
+        </div>
+        <div class="justify-content-end">
+            <a href="~/Master/DepartmentMaster/DepartmentMaster" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add</a>
+        </div>
+    </div>
+    <center><h3>DEPARTMENT MASTER</h3></center><hr />
+    <span id="alert" class="text-danger"></span>
+    <form asp-controller="DepartmentMaster" asp-action="SaveDepartment" id="form">
+        <div class="row g-3 mt-1" style="display:flex">
+            @if (Model.CurrentPage == "IN")
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtDeptNo", "DEPARTMENT NO:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.DepartmentMasterEntity.deptNo, new { @id = "txtDeptNo",@maxlength="12", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                    <span id="noerror" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtDeptNo", "DEPARTMENT NO:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.DepartmentMasterEntity.deptNo, new { @id = "txtDeptNo",@maxlength="12", @class = "form-control form-control-sm",@readonly="true",style="border-color:blue; color:blue" })
+                </div>
+            }
+            
+            <div class="col-md-4">
+                @Html.Label("txtDeptName", "DEPARTMENT NAME:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.DepartmentMasterEntity.deptName, new { @id = "txtDeptName",@maxlength="30", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="nameerror" class="text-danger"></span>
+            </div> 
+            <div class="col-md-4">
+                <br />
+                @if (Model.CurrentPage == "IN")
+                {
+                    <button type="submit" id="btnSubmit" class="btn btn-dark">Save</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }
+                <a href="~/Master/DepartmentMaster/DepartmentMaster" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>      
+        @Html.HiddenFor(m=>m.CurrentPage)
+    </form>
+</div>
+<br />
+
+
+@if (TempData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["message"]',
+        });
+    </script>
+}
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+      
+    document.getElementById('form').addEventListener('submit', function (event) {
+        var no = document.getElementById('txtDeptNo').value.trim();
+        var name = document.getElementById('txtDeptName').value.trim();
+        if (no === '') {
+            $("#noerror").text('Required Field');
+            $("#txtDeptNo").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#noerror").text('');   
+            $("#txtDeptNo").css('border-color', 'blue');
+        }
+
+        if (name === '') {
+            $("#txtDeptName").css('border-color', 'red');
+            $("#nameerror").text('Required Field');           
+            event.preventDefault();
+        } else {
+            $("#txtDeptName").css('border-color', 'blue');
+            $("#nameerror").text('');        
+        }     
+    });
+</script>
+<script>
+    //Form Validations
+    $(document).ready(function () {
+        $('#txtDeptNo').on('keyup', function () {
+            checkCodeUniqueness();
+        });
+    });
+    function checkCodeUniqueness() {
+        var deptno = $('#txtDeptNo').val();
+
+        $.ajax({
+            type: 'GET',
+            url: '/Master/DepartmentMaster/CheckUnique',
+            data: { deptno: deptno },
+            dataType: 'json',
+            success: function (response) {
+                if (response.res == 1) {
+                    $("#alert").text('Department No must be unique!');
+                    $("#txtDeptNo").css('border-color', 'red');
+                    $("#btnSubmit").prop("disabled", true);
+                }
+                else {
+                    $("#txtDeptNo").css('border-color', 'green');
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#alert").text(' ');
+                }
+            },
+            error: function () {              
+                console.error('Error checking code uniqueness.');
+            }
+        });
+    }
+</script>
+
+

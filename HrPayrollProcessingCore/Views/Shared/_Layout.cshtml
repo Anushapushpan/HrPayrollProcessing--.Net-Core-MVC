@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HrPayrollProcessingCore</title>
+
+    @* Icons *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HrPayrollProcessingCore.styles.css" asp-append-version="true" />
+    @* Datepicker *@
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    @* Datatable *@
+    <link href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.bootstrap.min.css" rel="stylesheet" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap4.min.js "></script>
+    @* SweetAlert *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 ">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white fs-4 fw-bold" asp-area="default" asp-controller="Home" asp-action="Index">Hr Payroll Processing</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 justify-content-end">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="default" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Master
+                            </a>
+                            <ul class="dropdown-menu">         
+                                <li><a class="dropdown-item" href="~/Master/CodesListing/CodesListing">Codes Listing</a></li>
+                                <li><a class="dropdown-item" href="~/Master/DepartmentListing/DepartmentListing">Department Listing</a></li>
+                                <li><a class="dropdown-item" href="~/Master/UserListing/UserListing">User Listing</a></li>
+                                <li><a class="dropdown-item" href="~/Master/ErrorListing/ErrorListing">Error Listing</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Transaction
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="~/Transaction/EmployeeList/EmployeeList">Employee List</a></li>
+                                <li><a class="dropdown-item" href="~/Transaction/Attendence/Attendence">Attendence Details</a></li>
+                                <li><a class="dropdown-item" href="~/Transaction/Payroll/Payroll">Payroll Processing</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="~/Transaction/History/History"><i class="fa fa-history" aria-hidden="true"></i>&nbsp;History</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-user-circle-o" aria-hidden="true" style="font-size:22px;"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-lg-start">
+                                @* <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal">Change Password</button></li> *@
+                                <li><a class="dropdown-item" asp-area="default" asp-controller="Login" asp-action="Logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    
+  @*   <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Change Password</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="form">
+                <div class="modal-body">
+                            <label>Enter Current Password:</label>
+                            <input type="password" id="currentPwd" class="form-control form-control-sm" maxlength="24" />
+                            <span id="currentPwdErr" class="text-danger"></span>
+                        <br />
+                            <label>New Password</label>
+                            <input type="password" id="newPwd" class="form-control form-control-sm" maxlength="24" />
+                            <span id="newpwdErr" class="text-danger"></span>
+                        <br />
+                            <label>Confirm Password</label>
+                            <input type="password" id="txtCpwd" class="form-control form-control-sm" maxlength="24" />
+                            <span id="cPwdErr" class="text-danger"></span>
+                      
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="btnSubmit" class="btn btn-primary">Save changes</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div> *@
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - HrPayrollProcessingCore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* @if (TempData["message"] != null)
+    {
+        <script>
+            swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '@TempData["message"]',
+            });
+        </script>
+    } *@
+   @*  <script>
+        //Form Validations
+        // $(document).ready(function () {
+        //     $("#newPwd").prop("disabled", true);        
+        //     $("#txtCpwd").prop("disabled", true);           
+        //     $('#currentPwd').on('keyup', function () {
+        //         checkCodeUniqueness();
+        //     });
+        // });
+
+        // function checkCodeUniqueness() {
+        //     var currentPwd = $('#currentPwd').val();
+
+        //     // Make an AJAX request to the server
+        //     $.ajax({
+        //         type: 'GET',
+        //         url: '/Master/UserMaster/CheckPassword',
+        //         data: { currentPwd: currentPwd },
+        //         success: function (response) {
+        //             if (response.res == 1) {
+        //                 // If true, disable the other button
+        //                 $("#currentPwdErr").text('Current password is valid');  
+        //                 // Assuming you want to change to "text-danger"
+        //                 document.getElementById('currentPwdErr').classList.remove('text-danger');
+        //                 document.getElementById('currentPwdErr').classList.add('text-success');
+        //                 $("#currentPwd").css('border-color', 'green');
+        //                 $("#newPwd").prop("disabled", false);                       
+        //                 $("#txtCpwd").prop("disabled", false);                 
+        //             }
+        //             else {
+        //                 $("#newPwd").prop("disabled", true);
+        //                 $("#txtCpwd").prop("disabled", true);                      
+        //                 document.getElementById('currentPwdErr').classList.remove('text-success');
+        //                 document.getElementById('currentPwdErr').classList.add('text-danger');
+        //                 $("#currentPwdErr").text('Current password is not valid!');
+        //                 $('currentPwdErr').classList.add('text-danger');
+        //                 $("#currentPwd").css('border-color', 'red');
+                        
+        //             }
+        //         },
+        //         error: function () {
+        //             // Handle the error if the request fails
+        //             console.error('Error checking code uniqueness.');
+        //         }
+        //     });
+        // }
+
+
+   
+        //Confirm password Checking
+        $("#txtCpwd").on("input", function () {
+            checkPasswordEquality();
+        });
+       
+        function checkPasswordEquality() {
+            var newPassword = $("#newPwd").val();
+            var confirmPassword = $("#txtCpwd").val();        
+            if (newPassword === confirmPassword) {
+                $("#cPwdErr").text("Passwords match");
+                $("#txtCpwd").css('border-color', 'green');
+                $("#cPwdErr").removeClass("text-danger").addClass("text-success");
+                $("#btnSubmit").prop("disabled", false);
+            } else {
+                $("#cPwdErr").text("Passwords do not match");
+                $("#txtCpwd").css('border-color', 'red');
+                $("#cPwdErr").removeClass("text-success").addClass("text-danger");
+                $("#btnSubmit").prop("disabled", true);
+            }
+        }
+
+
+
+        //Required field checking
+        document.getElementById('form').addEventListener('submit', function (event) {
+            var oldPwd = document.getElementById('currentPwd').value.trim();
+            var newPwd = document.getElementById('newPwd').value.trim();
+            var cPwd = document.getElementById('txtCpwd').value.trim();
+            if (oldPwd === '') {
+                $("#currentPwdErr").text('Required Field');
+                event.preventDefault();
+            } else {
+                $("#currentPwdErr").text('');
+                // Prevent the form from submitting
+            }
+
+            if (newPwd === '') {
+                $("#newpwdErr").text('Required Field');
+                event.preventDefault();
+            } else {
+                $("#newpwdErr").text('');
+                // Prevent the form from submitting
+            }
+
+            if (cPwd === '') {
+                $("#cPwdErr").text('Required Field');
+                event.preventDefault();
+            } else {
+                $("#cPwdErr").text('');
+                // Prevent the form from submitting
+            }
+
+        });
+
+        //Submit the modal      
+        $(document).ready(function () {
+            $("#btnSubmit").click(function () {
+                var currentPwd = $('#currentPwd').val();
+                var newPwd = $("#newPwd").val();    
+                var currentPwd = $('#currentPwd').val();
+                $.ajax({
+                    url: "/Master/UserMaster/UpdateUserPassword",
+                    type: "POST",
+                    data: { newPwd: newPwd, currentPwd: currentPwd },
+                    success: function (result) {
+                        if (result.res == 1) {
+                            // If true, disable the other button
+                            swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Password Changed Successfully',
+                            });
+                            
+                        }
+
+                        if (result.res == 2) {
+                            // If true, disable the other button
+                            swal.fire({
+                                icon: 'warning',
+                                title: 'Warning',
+                                text: 'Incorrect Current Password',
+                            });
+
+                        }
+                    },
+                    error: function (error) {
+                        // Handle the error
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script> *@
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

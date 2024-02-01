@@ -1,0 +1,173 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@using HrPayrollProcessingCore;
+@model CodeMasterViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">           
+                <a href="~/Master/CodesListing/CodesListing" class="btn btn-dark"><i class="fa fa-chevron-circle-left"></i>&nbsp;Back</a>                     
+        </div>
+        <div class="justify-content-end">
+            <!-- Your second button goes here -->
+            <a href="~/Master/CodesMaster/CodesMaster" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add</a>
+        </div>
+    </div>
+    <center><h3>CODES MASTER</h3></center><hr />
+    <span id="alert" class="text-danger"></span>
+    <form  asp-controller="CodesMaster" asp-action="SaveCode" method="post" id="form">
+        <div class="row g-3 mt-1">
+            @if (Model.CurrentPage == "IN")
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtCmCode", "CODE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.CodeMasterEntity.cmCode, new { @id = "txtCmCode", @class = "form-control form-control-sm",@maxlength="12",style="border-color:blue; color:blue" })
+                    <span id="cmCodeError" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("txtCmType", "TYPE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.CodeMasterEntity.cmType, new { @id = "txtCmType", @class = "form-control form-control-sm",@maxlength="12",style="border-color:blue; color:blue" })
+                    <span id="cmTypeError" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtCmCode", "CODE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.CodeMasterEntity.cmCode, new { @id = "txtCmCode",@maxlength="12", @class = "form-control form-control-sm",@readonly="true",style="border-color:blue; color:blue" })
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("txtCmType", "TYPE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.CodeMasterEntity.cmType, new { @id = "txtCmType",@maxlength="12", @class = "form-control form-control-sm",@readonly="true",style="border-color:blue; color:blue" })
+                </div>
+            }
+            <div class="col-md-4">
+                @Html.Label("txtCmDesc", "DESCRIPTION:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.CodeMasterEntity.cmDesc, new { @id = "txtCmDesc",@maxlength="240", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="cmDescError" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("txtCmValue", "VALUE:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })
+                @Html.TextBoxFor(m => m.CodeMasterEntity.cmValue, new { @id = "txtCmValue",@maxlength="12", @class = "form-control form-control-sm", type="number",style="border-color:blue; color:blue" })
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtCmActive", "ACTIVE Y/N:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font><br />
+                @Html.CheckBoxFor(m => m.CodeMasterEntity.isUserActiveYn, new { @id = "chkCmActive", @checked="true",style="border-color:blue; color:blue" })
+               
+            </div>
+        </div><br />
+        <center>
+            <div class="mt-2">
+               @if (Model.CurrentPage == "IN")
+                {
+                    <button type="submit" class="btn btn-dark" id="btnSubmit">Save</button>
+                }else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }
+                <a href="~/Master/CodesMaster/CodesMaster" class="btn btn-secondary">Cancel</a>
+            </div>
+        </center>
+     @Html.HiddenFor(m=>m.CurrentPage)
+    </form>
+
+  
+</div>
+@if (TempData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["message"]',
+        });
+    </script>   
+}
+
+<br />
+
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    //Form Validations
+    $(document).ready(function () {
+        $('#txtCmCode').on('keyup', function () {
+            checkCodeUniqueness();
+        });
+        $('#txtCmType').on('keyup', function () {
+            checkCodeUniqueness();
+        });
+    });
+
+    function checkCodeUniqueness() {
+        var cmCode = $('#txtCmCode').val();
+        var cmType = $('#txtCmType').val();
+       
+        $.ajax({
+            type: 'GET',
+            url: '/Master/CodesMaster/CheckUnique',
+            data: { cmCode: cmCode,cmType: cmType },
+            success: function (response) {
+                if (response.res == 1) {               
+                    $("#alert").text('Cmcode and Cmtype must be unique!');
+                    $("#txtCmType").css('border-color', 'red');
+                    $("#txtCmCode").css('border-color', 'red');
+                    $("#btnSubmit").prop("disabled", true);
+                }
+                else {
+                    $("#txtCmType").css('border-color', 'green');
+                    $("#txtCmCode").css('border-color', 'green');
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#alert").text(' ');
+                }
+            },
+            error: function () {              
+                console.error('Error checking code uniqueness.');
+            }
+        });
+    }
+
+    document.getElementById('form').addEventListener('submit', function (event) {
+        var cmCode = document.getElementById('txtCmCode').value.trim();
+        var cmType = document.getElementById('txtCmType').value.trim();
+        var cmDesc = document.getElementById('txtCmDesc').value.trim();
+        if (cmCode === '') {
+            $("#cmCodeError").text('Required Field');
+            $("#txtCmCode").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#cmCodeError").text('');
+            $("#txtCmCode").css('border-color', 'blue'); 
+        }
+
+        if (cmType === '') {
+            $("#cmTypeError").text('Required Field');
+            $("#txtCmType").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#cmTypeError").text('');
+            $("#txtCmType").css('border-color', 'blue');
+        }
+
+        if (cmDesc === '') {
+            $("#cmDescError").text('Required Field');
+            $("#txtCmDesc").css('border-color', 'red');
+            event.preventDefault();
+        } else {
+            $("#txtCmDesc").css('border-color', 'blue');
+            $("#cmDescError").text('');
+        }
+    });
+  
+</script>
+

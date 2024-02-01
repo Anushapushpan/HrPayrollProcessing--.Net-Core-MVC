@@ -1,0 +1,146 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using HrPayrollProcessingCore;
+@model UserMasterViewModel;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="container">
+    <div class="d-flex justify-content-between">
+        <div class="justify-content-start">
+            <a href="~/Master/UserListing/UserListing" class="btn btn-dark"><i class="fa fa-chevron-circle-left"></i>&nbsp;Back</a>
+        </div>
+        <div class="justify-content-end">
+            <a href="~/Master/UserMaster/UserMaster" class="btn btn-dark"><i class="fa fa-plus">&nbsp</i>Add</a>
+        </div>
+    </div>
+    <center><h3>USER MASTER</h3></center><hr />
+    <span id="alert" class="text-danger"></span>
+    <form asp-controller="UserMaster" asp-action="SaveUser" method="post" id="form">
+        <div class="row g-3 mt-1">
+            @if (Model.CurrentPage == "IN")
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtUserId", "USER ID:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.User.userId, new { @id = "txtUserId", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="usererr" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <div class="col-md-4">
+                    @Html.Label("txtUserId", "USER ID:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                    @Html.TextBoxFor(m => m.User.userId, new { @id = "txtUserId",@maxlength="12",@readonly="true", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                </div>
+            }
+            <div class="col-md-4">
+                @Html.Label("txtUserName", "USERNAME:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.User.userName, new { @id = "txtUserName",@maxlength="30", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="namerr" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                @Html.Label("txtUserPwd", "PASSWORD:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font>
+                @Html.TextBoxFor(m => m.User.userPassword, new { @id = "txtUserPwd",@maxlength="24",@type="password", @class = "form-control form-control-sm",style="border-color:blue; color:blue" })
+                <span id="pwderr" class="text-danger"></span>
+            </div>           
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-md-4">
+                @Html.Label("chkUserActive", "ACTIVE Y/N:", new {  @class = "form-label col-form-label-sm mb-0 fs-6 " })<font color="red">*</font><br />
+                @Html.CheckBoxFor(m => m.User.isUserActiveYn, new { @id = "chkUserActive", @checked="true",style="border-color:blue; color:blue" })
+            </div>
+            
+        </div>
+        <center>
+            <div class="mt-2">
+                @if (Model.CurrentPage == "IN")
+                {
+                    <button type="submit" class="btn btn-dark" id="btnSubmit">Save</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success">Update</button>
+                }
+            <a href="~/Master/UserMaster/UserMaster" class="btn btn-secondary">Cancel</a>
+            </div>
+        </center>
+        @Html.HiddenFor(m=>m.CurrentPage)
+    </form>
+</div>
+<br />
+
+@if (TempData["message"] != null)
+{
+    <script>
+        swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '@TempData["message"]',
+        });
+    </script>
+}
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+
+    //Form Validations
+    $(document).ready(function () {
+        $('#txtUserId').on('keyup', function () {
+            checkCodeUniqueness();
+        });
+    });
+    function checkCodeUniqueness() {
+        var userid = $('#txtUserId').val();
+        $.ajax({
+            type: 'GET',
+            url: '/Master/UserMaster/CheckUnique',
+            data: { userid: userid },
+            dataType: 'json',
+            success: function (response) {
+                if (response.res == 1) {                 
+                    $("#alert").text('UserId must be unique!');
+                    $("#txtUserId").css('border-color', 'red');
+                    $("#btnSubmit").prop("disabled", true);
+                }
+                else {
+                    $("#txtUserId").css('border-color', 'green');
+                    $("#btnSubmit").prop("disabled", false);
+                    $("#alert").text(' ');
+                }
+            },
+            error: function () {
+                console.error('Error checking code uniqueness.');
+            }
+        });
+    }
+
+    document.getElementById('form').addEventListener('submit', function (event) {
+        var id = document.getElementById('txtUserId').value.trim();
+        var name = document.getElementById('txtUserName').value.trim();
+        var pwd = document.getElementById('txtUserPwd').value.trim();
+        if (id === '') {
+            $("#usererr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#usererr").text('');
+        }
+
+        if (name === '') {
+            $("#namerr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#namerr").text('');
+        }
+
+        if (pwd === '') {
+            $("#pwderr").text('Required Field');
+            event.preventDefault();
+        } else {
+            $("#pwderr").text('');
+        }
+
+    });
+</script>
